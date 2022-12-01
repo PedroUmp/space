@@ -4,6 +4,7 @@ from PPlay.gameimage import *
 from PPlay.sprite import *
 from PPlay.keyboard import *
 from PPlay.animation import *
+from random import randint
 import main
 import fim
  
@@ -11,7 +12,7 @@ import fim
 def piupiu(nave, background, janela, teclado, velx , vely, lista, delay):
     if teclado.key_pressed("UP") and delay == 0:
         criartiro(lista, nave)
-        delay = 35
+        delay = 120
     #tem tiro pra disparar
     if len(lista) > 0:
         for tiro in lista:
@@ -33,8 +34,10 @@ def criartiro(lista, nave):
 
 
 
-def criar_alien(lista, num_matriz, num_linha, num_coluna):
-    if num_matriz == 0:
+def criar_alien(lista, num_matriz, num_linha, num_coluna, num_kills):
+    i = 1
+    if num_matriz == 0 or num_kills == 24*i:
+        num_kills = 0
         for i in range(num_linha):
             linha =[]
             for j in range(num_coluna):
@@ -43,24 +46,72 @@ def criar_alien(lista, num_matriz, num_linha, num_coluna):
                     alien.y = 50 *(i+1)
                     linha.append(alien)
             lista.append(linha)
-        num_matriz += 1
+        num_matriz = 1
+    i += 1
 
-    return num_matriz
+    return num_matriz, num_kills
             
 
-def allien(lista, num_matriz, num_linha, num_coluna, lista_alien):
-    criar_alien(lista, num_matriz, num_linha, num_coluna)
+def allien(lista, num_matriz, num_linha, num_coluna, lista_alien, num_kills):
+    num_matriz, num_kills = criar_alien(lista, num_matriz, num_linha, num_coluna, num_kills)
     for i, linha in enumerate(lista_alien):
         for j, alien, in enumerate(linha):
             lista[i][j].draw()
+    return num_matriz, num_kills
+
+def criar_tiro_alien(lista_alien, lista_tiro_alien, contador_tiro):
+    for i, linha in enumerate(lista_alien):
+        for j, alien in enumerate(linha):
+
+            if contador_tiro == 0:
+                tiro_alien = Sprite("assets\Tiro.png")
+                tiro_alien.x = lista_alien[i][j].x 
+                tiro_alien.y =lista_alien[i][j].y
+                lista_tiro_alien.append(tiro_alien)
+                contador_tiro += 1
+                return contador_tiro
+
+
+def tiro_alien(lista_alien, lista_tiro_alien, contador_tiro, nave, vida, morrendo, contador_ivencibilidade):
+    print(morrendo)
+    if morrendo == True :
+        nave = Sprite("assets\dificil.png")
+        contador_ivencibilidade += 1
+        if contador_ivencibilidade > 70:
+            nave = Sprite("assets\opa.png")
+            morrendo = False
+            contador_ivencibilidade = 0
+    print(contador_ivencibilidade)
+
+    alien_atirando = randint(0,250)
+    if alien_atirando == 10:
+        contador_tiro = criar_tiro_alien(lista_alien, lista_tiro_alien, contador_tiro)
+    if len(lista_tiro_alien):
+        for tiro in lista_tiro_alien:
+            tiro.draw()
+            tiro.y += 1
+            if Collision.collided_perfect(tiro, nave) and morrendo == False:
+                contador_tiro = 0
+                lista_tiro_alien.remove(tiro)
+                vida -= 1
+                nave.x = 640
+                morrendo = True
+                return contador_tiro, vida, morrendo, contador_ivencibilidade
+            elif tiro.y > 720:
+                lista_tiro_alien.remove(tiro)
+                contador_tiro = 0
+                return contador_tiro, vida, morrendo, contador_ivencibilidade
+            if vida == 0:
+                fim.acabou()
+    return contador_tiro, vida, morrendo, contador_ivencibilidade
 
 
 
-def movimento_alien(lista, janela, vel, nave, over, num_coluna, num_linha):
+def movimento_alien(lista, janela, vel, nave, over, num_coluna, num_linha, fator_dificuldade):
     colide = False
     for i, linha in enumerate(lista):
         for j, alien in enumerate(linha):
-            lista[i][j].x += 3*vel
+            lista[i][j].x += vel*fator_dificuldade * janela.delta_time() 
             if (lista[i][j].x >= janela.width - 50 or lista[i][j].x <= 0):
                 colide = True
             if Collision.collided(lista[i][j], nave):
@@ -88,43 +139,17 @@ def movimento_alien(lista, janela, vel, nave, over, num_coluna, num_linha):
 
 
 
-def matar(lista_alien, lista_tiro, pontuacao, maior, menor, maior_linha, menor_linha, maior_coluna, altura):
+def matar(lista_alien, lista_tiro, pontuacao, num_kills, fator_dificuldade):
     for i, linha in enumerate(lista_alien):
         for j, alien in enumerate(linha):
             for k, tiro in enumerate(lista_tiro):
-                if Collision.collided_perfect(tiro, alien) and tiro.x < lista_alien[maior_linha][maior].x and tiro.x > lista_alien[menor_linha][menor].x: #and tiro.y < lista_alien[maior_coluna][altura].y:
+                if Collision.collided_perfect(tiro, alien):
                     linha.remove(alien)
                     lista_tiro.remove(tiro)
                     pontuacao += 1
-                    print("foi")
-                    maior, menor, maior_linha, menor_linha, maior_coluna, altura = extremos(lista_alien, maior, menor, maior_linha, menor_linha, maior_coluna, altura)
-
-
-    #print(maior)
-    # print("maior ", maior)
-    # print("maior_linha ", maior_linha)
-    # print("\n")
-    # print("menor ", menor)
-    # print("menor_linha ", menor_linha)
-    # print("\n")
-
-    return pontuacao, maior, menor, maior_linha, menor_linha, maior_coluna, altura
-
-
-
-
-
-def extremos(lista_alien, maior, menor, maior_linha, menor_linha, maior_coluna, altura):
-    for i, linha in enumerate(lista_alien):
-        for j, alien in enumerate(linha):
-            if j <= menor:
-                menor_linha = i
-                menor = j
-            if j >= maior:
-                maior_linha = i
-                maior = j
-
-            if i <= altura:
-                maior_coluna = j
-                altura = i
-    return maior, menor, maior_linha, menor_linha, maior_coluna, altura
+                    num_kills += 1
+                    if num_kills == 24:
+                        fator_dificuldade += 0.1
+                        
+    return pontuacao, num_kills, fator_dificuldade
+                    

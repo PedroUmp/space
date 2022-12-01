@@ -3,7 +3,6 @@ from PPlay.gameimage import *
 from PPlay.sprite import *
 from PPlay.keyboard import *
 from PPlay.animation import *
-import menu
 
 
 
@@ -28,8 +27,8 @@ def configuracoes():
     teclado = Window.get_keyboard()
     click = Window.get_mouse() 
 
-
     while True:
+        janela_d.update()
         janela_d.draw_text("Dificuldade", janela_d.width/2 - 650, 80, size=100, color=([255, 255, 255]), bold=False)
         botao_easy.draw()
         botao_medium.draw()
@@ -37,7 +36,21 @@ def configuracoes():
         botao_back2.draw()
 
         if click.is_button_pressed(True) and click.is_over_object(botao_back2):
-            menu.inicio()
+            return fator_dificuldade
+        
+        elif click.is_button_pressed(True) and click.is_over_object(botao_easy):
+            fator_dificuldade = 1.0
+            return fator_dificuldade
+
+
+        elif click.is_button_pressed(True) and click.is_over_object(botao_medium):
+            fator_dificuldade = 1.2
+            return fator_dificuldade
+                
+        elif click.is_button_pressed(True) and click.is_over_object(botao_hard):
+            fator_dificuldade = 1.4
+            return fator_dificuldade
+
+
             
-        janela_d.update()
 
