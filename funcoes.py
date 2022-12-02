@@ -12,7 +12,7 @@ import fim
 def piupiu(nave, background, janela, teclado, velx , vely, lista, delay):
     if teclado.key_pressed("UP") and delay == 0:
         criartiro(lista, nave)
-        delay = 120
+        delay = 50
     #tem tiro pra disparar
     if len(lista) > 0:
         for tiro in lista:
@@ -72,16 +72,8 @@ def criar_tiro_alien(lista_alien, lista_tiro_alien, contador_tiro):
                 return contador_tiro
 
 
-def tiro_alien(lista_alien, lista_tiro_alien, contador_tiro, nave, vida, morrendo, contador_ivencibilidade):
-    print(morrendo)
-    if morrendo == True :
-        nave = Sprite("assets\dificil.png")
-        contador_ivencibilidade += 1
-        if contador_ivencibilidade > 70:
-            nave = Sprite("assets\opa.png")
-            morrendo = False
-            contador_ivencibilidade = 0
-    print(contador_ivencibilidade)
+def tiro_alien(lista_alien, lista_tiro_alien, contador_tiro, nave, vida, contador_ivencibilidade, janela):
+   
 
     alien_atirando = randint(0,250)
     if alien_atirando == 10:
@@ -89,21 +81,21 @@ def tiro_alien(lista_alien, lista_tiro_alien, contador_tiro, nave, vida, morrend
     if len(lista_tiro_alien):
         for tiro in lista_tiro_alien:
             tiro.draw()
-            tiro.y += 1
-            if Collision.collided_perfect(tiro, nave) and morrendo == False:
+            tiro.y += 600 * janela.delta_time()
+            if Collision.collided_perfect(tiro, nave) and contador_ivencibilidade <= 0:
                 contador_tiro = 0
                 lista_tiro_alien.remove(tiro)
                 vida -= 1
                 nave.x = 640
-                morrendo = True
-                return contador_tiro, vida, morrendo, contador_ivencibilidade
+                contador_ivencibilidade = 120
+                return contador_tiro, vida, contador_ivencibilidade, nave
             elif tiro.y > 720:
                 lista_tiro_alien.remove(tiro)
                 contador_tiro = 0
-                return contador_tiro, vida, morrendo, contador_ivencibilidade
+                return contador_tiro, vida, contador_ivencibilidade, nave
             if vida == 0:
                 fim.acabou()
-    return contador_tiro, vida, morrendo, contador_ivencibilidade
+    return contador_tiro, vida, contador_ivencibilidade, nave
 
 
 

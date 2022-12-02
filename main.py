@@ -28,45 +28,49 @@ def jogo(fator_dificuldade):
     lista_tiro_alien = []
     contador_tiro = 0
     vida = 3
-    morrendo = False
-    contador_ivencibilidade = 0
+    contador_invencibilidade = 0
+    velx = 400
+    vely = 600
+    clock = pygame.time.Clock()
 
     #sprites
     nave = Sprite("assets\opa.png")
     background = Sprite("assets\Backgroundo.jpg")
     nave.set_position(1280/2 - nave.width ,600)
-
+    nave_morrendo = Sprite("assets\opa_animacao.png", 4)
+    nave_morrendo.set_total_duration(1000)
     #Usuario
     teclado = Window.get_keyboard()
     click = Window.get_mouse()  
 
-    #variaveis
-    velx = 300
-    vely = 300
 
     while True:
-        janela_j.update()
+        clock.tick(60)
         background.draw()
-        nave.draw()
-        fps = str(ceil(clock.get_fps()))
-
         janela_j.draw_text(str(pontuacao), 100, 650, size=16, color=(0,255,0), font_name="Arial")
 
         if teclado.key_pressed("LEFT") and nave.x >= 0:
             nave.x -= velx * janela_j.delta_time()
         elif teclado.key_pressed("RIGHT") and nave.x <= 1280 - nave.width:
             nave.x += velx * janela_j.delta_time()
-        
-
-
 
         delay = funcoes.piupiu(nave, background, janela_j, teclado, velx , vely, lista_tiro, delay)
         num_matriz, num_kills = funcoes.allien(lista_alien, num_matriz, num_linha, num_coluna, lista_alien, num_kills)
         vel, over = funcoes.movimento_alien(lista_alien, janela_j, vel, nave, over,  num_coluna, num_linha, fator_dificuldade) 
         pontuacao, num_kills, fator_dificuldade = funcoes.matar(lista_alien, lista_tiro, pontuacao, num_kills, fator_dificuldade)
-        contador_tiro, vida, morrendo, contador_ivencibilidade = funcoes.tiro_alien(lista_alien, lista_tiro_alien, contador_tiro, nave, vida, morrendo, contador_ivencibilidade)
+        contador_tiro, vida, contador_invencibilidade, nave = funcoes.tiro_alien(lista_alien, lista_tiro_alien, contador_tiro, nave, vida, contador_invencibilidade, janela_j)
 
 
+        if contador_invencibilidade > 0:
+            nave_morrendo.x = nave.x
+            nave_morrendo.y = nave.y
+            nave_morrendo.draw()
+            nave_morrendo.update()
+            contador_invencibilidade -= 1
+        else:
+            nave.draw()
+
+            
         if over:
             name = input("Insert your name: ")
             #Pontuação
@@ -78,3 +82,5 @@ def jogo(fator_dificuldade):
             ranking_w.writelines(conteudo)
             ranking_w.close()
             fim.acabou()  
+            
+        janela_j.update()

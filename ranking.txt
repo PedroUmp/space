@@ -1,1 +1,1 @@
-pedro - 4.JOSE - 0.TOMAS DE AQUINO - 9.pedro - 0.pedro - 6.
+pedro - 4.JOSE - 0.TOMAS DE AQUINO - 9.pedro - 0.pedro - 6. c:; cd 'c:\Users\volty\OneDrive\Desktop\Space inavders 2 - Copia - Copia'; & 'C:\Users\volty\AppData\Local\Microsoft\WindowsApps\python3.10.exe' 'c:\Users\volty\.vscode\extensions\ms-python.python-2022.18.2\pythonFiles\lib\python\debugpy\adapter/../..\debugpy\launcher' '58732' '--' 'c:\Users\volty\OneDrive\Desktop\Space inavders 2 - Copia - Copia\menu.py'  - 6.
